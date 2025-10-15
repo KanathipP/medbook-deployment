@@ -3,7 +3,6 @@
 01-clone-all-for-development:
 	@mkdir -p services
 
-	# Clone UserService
 	@if [ -d "services/medbook-userservice/.git" ]; then \
 		echo "=== services/medbook-userservice exists; git pull --ff-only ==="; \
 		git -C services/medbook-userservice pull --ff-only; \
@@ -12,7 +11,6 @@
 		git clone https://github.com/Pasobeso/medbook-userservice.git services/medbook-userservice; \
 	fi
 
-	# Clone BookingService
 	@if [ -d "services/medbook-bookingservice/.git" ]; then \
 		echo "=== services/medbook-bookingservice exists; git pull --ff-only ==="; \
 		git -C services/medbook-bookingservice pull --ff-only; \
