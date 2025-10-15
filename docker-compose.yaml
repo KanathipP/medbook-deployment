@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  medbook-bookingservice:
+    image: ghcr.io/kanathipp/medbook-bookingservice:latest
+    container_name: medbook-bookingservice
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - medbook-bookingservice.env
+    depends_on:
+      - medbook-bookingservice-db
+    networks:
+      - medbook-bookingservice-backend
+
+  medbook-bookingservice-db:
+    image: bitnami/postgresql:latest
+    container_name: medbook-bookingservice-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    env_file: medbook-bookingservice.env
+    volumes:
+      - postgres_data:/bitnami/postgresql
+    networks:
+      - medbook-bookingservice-backend
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  medbook-bookingservice-backend:
+    driver: bridge
