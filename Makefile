@@ -1,25 +1,27 @@
 .PHONY: 01-clone-all-for-development
+
 01-clone-all-for-development:
 	@mkdir -p services
-	
+
 	# Clone UserService
-	@if [ -d "services/medbook-userservice.git" ]; then \
+	@if [ -d "services/medbook-userservice/.git" ]; then \
 		echo "=== services/medbook-userservice exists; git pull --ff-only ==="; \
-		git -C services/medbook-userservice pull --ff-only \
+		git -C services/medbook-userservice pull --ff-only; \
 	else \
 		echo "=== cloning https://github.com/Pasobeso/medbook-userservice.git into services/medbook-userservice ==="; \
 		git clone https://github.com/Pasobeso/medbook-userservice.git services/medbook-userservice; \
 	fi
-	
+
 	# Clone BookingService
-	@if [ -d "services/medbook-bookingservice.git" ]; then \
+	@if [ -d "services/medbook-bookingservice/.git" ]; then \
 		echo "=== services/medbook-bookingservice exists; git pull --ff-only ==="; \
-		git -C services/medbook-bookingservice pull --ff-only \
+		git -C services/medbook-bookingservice pull --ff-only; \
 	else \
 		echo "=== cloning https://github.com/Pasobeso/medbook-bookingservice.git into services/medbook-bookingservice ==="; \
 		git clone https://github.com/Pasobeso/medbook-bookingservice.git services/medbook-bookingservice; \
 	fi
-	@echo "task 01-clone-all-for-deployment done"
+
+	@echo "task 01-clone-all-for-development done"
 
 02-init-env-files:
 	@echo "=== Initializing .env files from .env.example ==="
