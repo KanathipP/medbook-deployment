@@ -18,13 +18,34 @@ services:
     image: bitnami/postgresql:latest
     container_name: medbook-bookingservice-db
     restart: unless-stopped
-    ports:
-      - "5432:5432"
     env_file: medbook-bookingservice.env
     volumes:
       - postgres_data:/bitnami/postgresql
     networks:
       - medbook-bookingservice-backend
+
+  medbook-userservice:
+    image: ghcr.io/pasobeso/medbook-userservice:latest
+    container_name: medbook-userservice
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    env_file:
+      - medbook-userservice.env
+    depends_on:
+      - medbook-userservice-db
+    networks:
+      - medbook-userservice-backend
+
+  medbook-userservice-db:
+    image: bitnami/postgresql:latest
+    container_name: medbook-userservice-db
+    restart: unless-stopped
+    env_file: medbook-userservice.env
+    volumes:
+      - postgres_data:/bitnami/postgresql
+    networks:
+      - medbook-userservice-backend
 
 volumes:
   postgres_data:
@@ -32,4 +53,6 @@ volumes:
 
 networks:
   medbook-bookingservice-backend:
+    driver: bridge
+  medbook-userservice-backend:
     driver: bridge
