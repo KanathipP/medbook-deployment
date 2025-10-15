@@ -24,3 +24,4 @@ for env_file in env_files:
                 outfile.write(line + "\n")
 
     print(f"✅ Generated {sample_file} from {env_file}")
+
