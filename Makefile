@@ -21,8 +21,6 @@
 	fi
 	@echo "task 01-clone-all-for-deployment done"
 
-.PHONY: 02-copy-env-to-development
-
 02-init-env-files:
 	@echo "=== Initializing .env files from .env.example ==="
 	@for f in *.env.example; do \
