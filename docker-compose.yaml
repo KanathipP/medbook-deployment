@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   medbook-bookingservice:
-    image: ghcr.io/kanathipp/medbook-bookingservice:latest
+    image: ghcr.io/pasobeso/medbook-bookingservice:latest
     container_name: medbook-bookingservice
     restart: unless-stopped
     ports:
