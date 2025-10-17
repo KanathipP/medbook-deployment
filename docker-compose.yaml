@@ -1,12 +1,23 @@
 version: "3.9"
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: medbook-nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "3000:80"
+    depends_on:
+      - medbook-userservice
+      - medbook-bookingservice
+    networks:
+      - medbook-userservice-backend
+      - medbook-bookingservice-backend
   medbook-userservice:
     image: ghcr.io/pasobeso/medbook-userservice:latest
     container_name: medbook-userservice
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     env_file:
       - medbook-userservice.env
     depends_on:
@@ -27,8 +38,6 @@ services:
     image: ghcr.io/pasobeso/medbook-bookingservice:latest
     container_name: medbook-bookingservice
     restart: unless-stopped
-    ports:
-      - "3001:3000"
     env_file:
       - medbook-bookingservice.env
     depends_on:
