@@ -1,35 +1,12 @@
 version: "3.9"
 
 services:
-  medbook-bookingservice:
-    image: ghcr.io/pasobeso/medbook-bookingservice:latest
-    container_name: medbook-bookingservice
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    env_file:
-      - medbook-bookingservice.env
-    depends_on:
-      - medbook-bookingservice-db
-    networks:
-      - medbook-bookingservice-backend
-
-  medbook-bookingservice-db:
-    image: bitnami/postgresql:latest
-    container_name: medbook-bookingservice-db
-    restart: unless-stopped
-    env_file: medbook-bookingservice.env
-    volumes:
-      - postgres_data:/bitnami/postgresql
-    networks:
-      - medbook-bookingservice-backend
-
   medbook-userservice:
     image: ghcr.io/pasobeso/medbook-userservice:latest
     container_name: medbook-userservice
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3000:3000"
     env_file:
       - medbook-userservice.env
     depends_on:
@@ -43,13 +20,35 @@ services:
     restart: unless-stopped
     env_file: medbook-userservice.env
     volumes:
-      - postgres_data:/bitnami/postgresql
+      - medbook_userservice_data:/bitnami/postgresql
     networks:
       - medbook-userservice-backend
+  medbook-bookingservice:
+    image: ghcr.io/pasobeso/medbook-bookingservice:latest
+    container_name: medbook-bookingservice
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    env_file:
+      - medbook-bookingservice.env
+    depends_on:
+      - medbook-bookingservice-db
+    networks:
+      - medbook-bookingservice-backend
+
+  medbook-bookingservice-db:
+    image: bitnami/postgresql:latest
+    container_name: medbook-bookingservice-db
+    restart: unless-stopped
+    env_file: medbook-bookingservice.env
+    volumes:
+      - medbook_bookingservice_data:/bitnami/postgresql
+    networks:
+      - medbook-bookingservice-backend
 
 volumes:
-  postgres_data:
-    driver: local
+  medbook_bookingservice_data:
+  medbook_userservice_data:
 
 networks:
   medbook-bookingservice-backend:
