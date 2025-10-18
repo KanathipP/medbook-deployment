@@ -1,69 +1,70 @@
 version: "3.9"
 
 services:
-  nginx:
+  medbook-nginx-dev:
     image: nginx:latest
-    container_name: medbook-nginx
+    container_name: medbook-nginx-dev
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - "3000:80"
     restart: unless-stopped
     depends_on:
-      - medbook-userservice
-      - medbook-bookingservice
+      - medbook-userservice-dev
+      - medbook-bookingservice-dev
     networks:
-      - medbook-userservice-backend
-      - medbook-bookingservice-backend
-  medbook-userservice:
+      - medbook-userservice-backend-dev
+      - medbook-bookingservice-backend-dev
+  medbook-userservice-dev:
     image: ghcr.io/pasobeso/medbook-userservice:latest
-    container_name: medbook-userservice
+    container_name: medbook-userservice-dev
     restart: unless-stopped
     env_file:
-      - medbook-userservice-development.env
-      - medbook-authtoken-development.env
+      - medbook-userservice-dev.env
+      - medbook-authtoken-dev.env
     depends_on:
-      - medbook-userservice-db
+      - medbook-userservice-db-dev
     networks:
-      - medbook-userservice-backend
+      - medbook-userservice-backend-dev
 
-  medbook-userservice-db:
+  medbook-userservice-db-dev:
     image: bitnami/postgresql:latest
-    container_name: medbook-userservice-db
+    container_name: medbook-userservice-db-dev
     restart: unless-stopped
-    env_file: medbook-userservice.env
+    env_file: medbook-userservice-dev.env
     volumes:
-      - medbook_userservice_data:/bitnami/postgresql
+      - medbook_userservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-userservice-backend
-  medbook-bookingservice:
+      - medbook-userservice-backend-dev
+
+  medbook-bookingservice-dev:
     image: ghcr.io/pasobeso/medbook-bookingservice:latest
-    container_name: medbook-bookingservice
+    container_name: medbook-bookingservice-dev
     restart: unless-stopped
     env_file:
-      - medbook-bookingservice-development.env
-      - medbook-authtoken-development.env
+      - medbook-bookingservice-dev.env
+      - medbook-authtoken-dev.env
     depends_on:
-      - medbook-bookingservice-db
+      - medbook-bookingservice-db-dev
     networks:
-      - medbook-bookingservice-backend
+      - medbook-bookingservice-backend-dev
 
-  medbook-bookingservice-db:
+  medbook-bookingservice-db-dev:
     image: bitnami/postgresql:latest
-    container_name: medbook-bookingservice-db
+    container_name: medbook-bookingservice-db-dev
     restart: unless-stopped
-    env_file: medbook-bookingservice.env
+    env_file: medbook-bookingservice-dev.env
     volumes:
-      - medbook_bookingservice_data:/bitnami/postgresql
+      - medbook_bookingservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-bookingservice-backend
+      - medbook-bookingservice-backend-dev
 
 volumes:
-  medbook_bookingservice_data:
-  medbook_userservice_data:
+  medbook_bookingservice_data_dev:
+  medbook_userservice_data_dev:
 
 networks:
-  medbook-bookingservice-backend:
+  medbook-bookingservice-backend-dev:
     driver: bridge
-  medbook-userservice-backend:
+  medbook-userservice-backend-dev:
     driver: bridge
