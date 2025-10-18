@@ -22,6 +22,8 @@ services:
     env_file:
       - medbook-userservice-dev.env
       - medbook-authtoken-dev.env
+      - medbook-stage-dev.env
+      - medbook-frontend-url.env
     depends_on:
       - medbook-userservice-db-dev
     networks:
@@ -44,6 +46,8 @@ services:
     env_file:
       - medbook-bookingservice-dev.env
       - medbook-authtoken-dev.env
+      - medbook-stage-dev.env
+      - medbook-frontend-url.env
     depends_on:
       - medbook-bookingservice-db-dev
     networks:
