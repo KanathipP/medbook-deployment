@@ -12,10 +12,12 @@ services:
       - medbook-userservice-dev
       - medbook-bookingservice-dev
       - medbook-inventoryservice-dev
+      - medbook-deliveryservice-dev
     networks:
       - medbook-userservice-backend-dev
       - medbook-bookingservice-backend-dev
       - medbook-inventoryservice-backend-dev
+      - medbook-deliveryservice-backend-dev
 
   # RMQ
   rmq:
@@ -108,10 +110,37 @@ services:
     networks:
       - medbook-inventoryservice-backend-dev
 
+  # DeliveryService
+  medbook-deliveryservice-dev:
+    image: ghcr.io/pasobeso/medbook-deliveryservice:latest
+    container_name: medbook-deliveryservice-dev
+    restart: unless-stopped
+    env_file:
+      - medbook-deliveryservice-dev.env
+      - medbook-rmq-dev.env
+      - medbook-authtoken-dev.env
+      - medbook-stage-dev.env
+      - medbook-frontend-url.env
+    depends_on:
+      - medbook-deliveryservice-db-dev
+    networks:
+      - medbook-deliveryservice-backend-dev
+      - rmq-backend
+  medbook-deliveryservice-db-dev:
+    image: bitnami/postgresql:latest
+    container_name: medbook-deliveryservice-db-dev
+    restart: unless-stopped
+    env_file: medbook-deliveryservice-dev.env
+    volumes:
+      - medbook_deliveryservice_data_dev:/bitnami/postgresql
+    networks:
+      - medbook-deliveryservice-backend-dev
+
 volumes:
   medbook_bookingservice_data_dev:
   medbook_userservice_data_dev:
   medbook_inventoryservice_data_dev:
+  medbook_deliveryservice_data_dev:
   rabbitmq_data:
 
 networks:
@@ -120,6 +149,8 @@ networks:
   medbook-userservice-backend-dev:
     driver: bridge
   medbook-inventoryservice-backend-dev:
+    driver: bridge
+  medbook-deliveryservice-backend-dev:
     driver: bridge
   rmq-backend:
     driver: bridge
