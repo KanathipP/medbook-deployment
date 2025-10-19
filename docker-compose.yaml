@@ -13,11 +13,24 @@ services:
       - medbook-bookingservice-dev
       - medbook-inventoryservice-dev
       - medbook-deliveryservice-dev
+      - medbook-orderservice-dev
     networks:
-      - medbook-userservice-backend-dev
-      - medbook-bookingservice-backend-dev
-      - medbook-inventoryservice-backend-dev
-      - medbook-deliveryservice-backend-dev
+      - api-backend
+
+  # CloudBeaver
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    restart: unless-stopped
+    ports:
+      - "8978:8978"
+    volumes:
+      - cb_workspace:/opt/cloudbeaver/workspace
+    environment:
+      # Optional: set server URL if using reverse proxy or custom domain
+      CB_SERVER_URL: "http://localhost:8978"
+    networks:
+      - api-backend
 
   # RMQ
   rmq:
@@ -32,7 +45,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/mnesia
     networks:
-      - rmq-backend
+      - api-backend
 
   # UserService
   medbook-userservice-dev:
@@ -48,7 +61,7 @@ services:
     depends_on:
       - medbook-userservice-db-dev
     networks:
-      - medbook-userservice-backend-dev
+      - api-backend
   medbook-userservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-userservice-db-dev
@@ -57,7 +70,7 @@ services:
     volumes:
       - medbook_userservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-userservice-backend-dev
+      - api-backend
 
   # BookingService
   medbook-bookingservice-dev:
@@ -73,7 +86,7 @@ services:
     depends_on:
       - medbook-bookingservice-db-dev
     networks:
-      - medbook-bookingservice-backend-dev
+      - api-backend
   medbook-bookingservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-bookingservice-db-dev
@@ -82,7 +95,7 @@ services:
     volumes:
       - medbook_bookingservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-bookingservice-backend-dev
+      - api-backend
 
   # InventoryService
   medbook-inventoryservice-dev:
@@ -98,8 +111,7 @@ services:
     depends_on:
       - medbook-inventoryservice-db-dev
     networks:
-      - medbook-inventoryservice-backend-dev
-      - rmq-backend
+      - api-backend
   medbook-inventoryservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-inventoryservice-db-dev
@@ -108,7 +120,7 @@ services:
     volumes:
       - medbook_inventoryservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-inventoryservice-backend-dev
+      - api-backend
 
   # DeliveryService
   medbook-deliveryservice-dev:
@@ -124,8 +136,7 @@ services:
     depends_on:
       - medbook-deliveryservice-db-dev
     networks:
-      - medbook-deliveryservice-backend-dev
-      - rmq-backend
+      - api-backend
   medbook-deliveryservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-deliveryservice-db-dev
@@ -134,23 +145,42 @@ services:
     volumes:
       - medbook_deliveryservice_data_dev:/bitnami/postgresql
     networks:
-      - medbook-deliveryservice-backend-dev
+      - api-backend
+
+  # OrderService
+  medbook-orderservice-dev:
+    image: ghcr.io/pasobeso/medbook-orderservice:latest
+    container_name: medbook-orderservice-dev
+    restart: unless-stopped
+    env_file:
+      - medbook-orderservice-dev.env
+      - medbook-rmq-dev.env
+      - medbook-authtoken-dev.env
+      - medbook-stage-dev.env
+      - medbook-frontend-url.env
+    depends_on:
+      - medbook-orderservice-db-dev
+    networks:
+      - api-backend
+  medbook-orderservice-db-dev:
+    image: bitnami/postgresql:latest
+    container_name: medbook-orderservice-db-dev
+    restart: unless-stopped
+    env_file: medbook-orderservice-dev.env
+    volumes:
+      - medbook_orderservice_data_dev:/bitnami/postgresql
+    networks:
+      - api-backend
 
 volumes:
   medbook_bookingservice_data_dev:
   medbook_userservice_data_dev:
   medbook_inventoryservice_data_dev:
   medbook_deliveryservice_data_dev:
+  medbook_orderservice_data_dev:
   rabbitmq_data:
+  cb_workspace:
 
 networks:
-  medbook-bookingservice-backend-dev:
-    driver: bridge
-  medbook-userservice-backend-dev:
-    driver: bridge
-  medbook-inventoryservice-backend-dev:
-    driver: bridge
-  medbook-deliveryservice-backend-dev:
-    driver: bridge
-  rmq-backend:
+  api-backend:
     driver: bridge
