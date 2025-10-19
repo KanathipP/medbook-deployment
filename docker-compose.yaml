@@ -1,6 +1,5 @@
-version: "3.9"
-
 services:
+  # NGINX gateway
   medbook-nginx-dev:
     image: nginx:latest
     container_name: medbook-nginx-dev
@@ -12,15 +11,35 @@ services:
     depends_on:
       - medbook-userservice-dev
       - medbook-bookingservice-dev
+      - medbook-inventoryservice-dev
     networks:
       - medbook-userservice-backend-dev
       - medbook-bookingservice-backend-dev
+      - medbook-inventoryservice-backend-dev
+
+  # RMQ
+  rmq:
+    image: rabbitmq:management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: /
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    networks:
+      - rmq-backend
+
+  # UserService
   medbook-userservice-dev:
     image: ghcr.io/pasobeso/medbook-userservice:latest
     container_name: medbook-userservice-dev
     restart: unless-stopped
     env_file:
       - medbook-userservice-dev.env
+      - medbook-rmq-dev.env
       - medbook-authtoken-dev.env
       - medbook-stage-dev.env
       - medbook-frontend-url.env
@@ -28,7 +47,6 @@ services:
       - medbook-userservice-db-dev
     networks:
       - medbook-userservice-backend-dev
-
   medbook-userservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-userservice-db-dev
@@ -39,12 +57,14 @@ services:
     networks:
       - medbook-userservice-backend-dev
 
+  # BookingService
   medbook-bookingservice-dev:
     image: ghcr.io/pasobeso/medbook-bookingservice:latest
     container_name: medbook-bookingservice-dev
     restart: unless-stopped
     env_file:
       - medbook-bookingservice-dev.env
+      - medbook-rmq-dev.env
       - medbook-authtoken-dev.env
       - medbook-stage-dev.env
       - medbook-frontend-url.env
@@ -52,7 +72,6 @@ services:
       - medbook-bookingservice-db-dev
     networks:
       - medbook-bookingservice-backend-dev
-
   medbook-bookingservice-db-dev:
     image: bitnami/postgresql:latest
     container_name: medbook-bookingservice-db-dev
@@ -63,12 +82,44 @@ services:
     networks:
       - medbook-bookingservice-backend-dev
 
+  # InventoryService
+  medbook-inventoryservice-dev:
+    image: ghcr.io/pasobeso/medbook-inventoryservice:latest
+    container_name: medbook-inventoryservice-dev
+    restart: unless-stopped
+    env_file:
+      - medbook-inventoryservice-dev.env
+      - medbook-rmq-dev.env
+      - medbook-authtoken-dev.env
+      - medbook-stage-dev.env
+      - medbook-frontend-url.env
+    depends_on:
+      - medbook-inventoryservice-db-dev
+    networks:
+      - medbook-inventoryservice-backend-dev
+      - rmq-backend
+  medbook-inventoryservice-db-dev:
+    image: bitnami/postgresql:latest
+    container_name: medbook-inventoryservice-db-dev
+    restart: unless-stopped
+    env_file: medbook-inventoryservice-dev.env
+    volumes:
+      - medbook_inventoryservice_data_dev:/bitnami/postgresql
+    networks:
+      - medbook-inventoryservice-backend-dev
+
 volumes:
   medbook_bookingservice_data_dev:
   medbook_userservice_data_dev:
+  medbook_inventoryservice_data_dev:
+  rabbitmq_data:
 
 networks:
   medbook-bookingservice-backend-dev:
     driver: bridge
   medbook-userservice-backend-dev:
+    driver: bridge
+  medbook-inventoryservice-backend-dev:
+    driver: bridge
+  rmq-backend:
     driver: bridge
